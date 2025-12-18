@@ -1,7 +1,6 @@
 services:
   db:
     image: postgres:16-alpine
-    container_name: annex9_db
     environment:
       POSTGRES_DB: annex9generator
       POSTGRES_USER: postgres
@@ -19,7 +18,6 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: annex9_backend
     environment:
       - DEBUG=False
       - SECRET_KEY=${SECRET_KEY:?SECRET_KEY is required}
@@ -66,7 +64,6 @@ services:
       dockerfile: Dockerfile
       args:
         - VITE_API_URL=${VITE_API_URL:?VITE_API_URL is required}
-    container_name: annex9_frontend
     ports:
       - "3000:3000"
     depends_on:
