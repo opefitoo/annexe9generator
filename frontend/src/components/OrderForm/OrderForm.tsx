@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { useNavigate, Link } from 'react-router-dom'
 import { Input, Select, Button } from '../common'
 import { useCreateOrder, useUpdateOrder, useClientSearch, useFindOrCreateClient, useOperatorConfig } from '../../hooks'
-import type { Order, OrderCreate, ServiceType, Client, TitleType } from '../../types'
+import type { Order, OrderCreate, ServiceType, Client } from '../../types'
 
 interface OrderFormProps {
   order?: Order
