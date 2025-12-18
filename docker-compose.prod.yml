@@ -34,16 +34,17 @@ services:
       - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
       - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@example.com}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD:?ADMIN_PASSWORD is required}
-      # Email settings for password reset
-      - EMAIL_BACKEND=${EMAIL_BACKEND:-django.core.mail.backends.smtp.EmailBackend}
-      - EMAIL_HOST=${EMAIL_HOST:?EMAIL_HOST is required}
+      - RESET_ADMIN_PASSWORD=${RESET_ADMIN_PASSWORD:-false}
+      # Email settings for password reset (optional - password reset won't work without these)
+      - EMAIL_BACKEND=${EMAIL_BACKEND:-django.core.mail.backends.console.EmailBackend}
+      - EMAIL_HOST=${EMAIL_HOST:-}
       - EMAIL_PORT=${EMAIL_PORT:-587}
       - EMAIL_USE_TLS=${EMAIL_USE_TLS:-True}
-      - EMAIL_HOST_USER=${EMAIL_HOST_USER:?EMAIL_HOST_USER is required}
-      - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD:?EMAIL_HOST_PASSWORD is required}
-      - DEFAULT_FROM_EMAIL=${DEFAULT_FROM_EMAIL:?DEFAULT_FROM_EMAIL is required}
+      - EMAIL_HOST_USER=${EMAIL_HOST_USER:-}
+      - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD:-}
+      - DEFAULT_FROM_EMAIL=${DEFAULT_FROM_EMAIL:-noreply@example.com}
       - PASSWORD_RESET_TOKEN_EXPIRE_HOURS=${PASSWORD_RESET_TOKEN_EXPIRE_HOURS:-24}
-      - PASSWORD_RESET_URL=${PASSWORD_RESET_URL:?PASSWORD_RESET_URL is required}
+      - PASSWORD_RESET_URL=${PASSWORD_RESET_URL:-}
     ports:
       - "8000:8000"
     volumes:
@@ -54,6 +55,7 @@ services:
     command: >
       sh -c "python manage.py migrate --run-syncdb &&
              python manage.py seed_template &&
+             python manage.py seed_user &&
              python manage.py collectstatic --noinput &&
              gunicorn config.asgi:application -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000"
     restart: unless-stopped
