@@ -1,0 +1,33 @@
+# Django
+Django>=5.0,<6.0
+psycopg2-binary>=2.9.9
+
+# FastAPI
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+python-multipart>=0.0.6
+
+# Authentication
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+cryptography>=42.0.0
+
+# PDF Generation
+reportlab>=4.0.0
+
+# Django-FastAPI integration
+django-ninja>=1.1.0
+
+# Utilities
+python-dotenv>=1.0.0
+pydantic[email]>=2.5.0
+pydantic-settings>=2.1.0
+email-validator>=2.1.0
+
+# Import/Export
+openpyxl>=3.1.2
+pandas>=2.1.0
+
+# Development
+black>=24.0.0
+isort>=5.13.0
