@@ -2,7 +2,7 @@ services:
   db:
     image: postgres:16-alpine
     networks:
-      - annex9net
+      - dokploy-network
     environment:
       POSTGRES_DB: annex9generator
       POSTGRES_USER: postgres
@@ -46,7 +46,7 @@ services:
       - PASSWORD_RESET_TOKEN_EXPIRE_HOURS=${PASSWORD_RESET_TOKEN_EXPIRE_HOURS:-24}
       - PASSWORD_RESET_URL=${PASSWORD_RESET_URL:-}
     networks:
-      - annex9net
+      - dokploy-network
     expose:
       - "8000"
     volumes:
@@ -69,7 +69,7 @@ services:
       args:
         - VITE_API_URL=${VITE_API_URL:?VITE_API_URL is required}
     networks:
-      - annex9net
+      - dokploy-network
     expose:
       - "3000"
     depends_on:
@@ -77,8 +77,8 @@ services:
     restart: unless-stopped
 
 networks:
-  annex9net:
-    driver: bridge
+  dokploy-network:
+    external: true
 
 volumes:
   postgres_data:
