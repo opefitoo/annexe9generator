@@ -43,8 +43,8 @@ services:
       - DEFAULT_FROM_EMAIL=${DEFAULT_FROM_EMAIL:-noreply@example.com}
       - PASSWORD_RESET_TOKEN_EXPIRE_HOURS=${PASSWORD_RESET_TOKEN_EXPIRE_HOURS:-24}
       - PASSWORD_RESET_URL=${PASSWORD_RESET_URL:-}
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     volumes:
       - backend_media:/app/media
     depends_on:
@@ -64,8 +64,8 @@ services:
       dockerfile: Dockerfile
       args:
         - VITE_API_URL=${VITE_API_URL:?VITE_API_URL is required}
-    ports:
-      - "3000:3000"
+    expose:
+      - "3000"
     depends_on:
       - backend
     restart: unless-stopped
