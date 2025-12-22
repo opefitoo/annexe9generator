@@ -43,10 +43,13 @@ export function useAuth() {
     navigate('/login')
   }
 
+  const canEdit = user?.role === 'admin'
+
   return {
     user,
     loading,
     isAuthenticated: !!user,
+    canEdit,
     login,
     logout,
   }

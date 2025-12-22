@@ -47,6 +47,7 @@ class UserResponse(BaseModel):
     last_name: str
     is_active: bool
     is_staff: bool
+    role: str  # 'admin' or 'readonly'
 
     class Config:
         from_attributes = True

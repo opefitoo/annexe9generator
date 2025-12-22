@@ -1,3 +1,5 @@
+export type UserRole = 'admin' | 'readonly'
+
 export interface User {
   id: number
   username: string
@@ -6,6 +8,7 @@ export interface User {
   last_name: string
   is_active: boolean
   is_staff: boolean
+  role: UserRole
 }
 
 export interface LoginCredentials {

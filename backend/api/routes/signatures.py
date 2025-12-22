@@ -15,7 +15,7 @@ from django.utils import timezone
 from asgiref.sync import sync_to_async
 
 from core.models import Order
-from api.routes.auth import get_current_active_user
+from api.routes.auth import get_current_active_user, get_staff_user
 from api.services.crypto import (
     encrypt_signature,
     decrypt_signature,
@@ -152,10 +152,11 @@ def order_to_public_response(order: Order) -> PublicOrderResponse:
 async def generate_signature_link(
     order_id: UUID,
     hours_valid: int = 24,
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(get_staff_user),
 ):
     """
     Generate a secure signature link for the client.
+    Requires staff privileges.
 
     This creates a time-limited token that allows the client to
     access the signature page without logging in.

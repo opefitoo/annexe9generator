@@ -15,7 +15,7 @@ from jose import JWTError, jwt
 from asgiref.sync import sync_to_async
 
 from core.models import Order, OrderAuditLog
-from api.routes.auth import get_current_active_user, get_user_by_username
+from api.routes.auth import get_current_active_user, get_staff_user, get_user_by_username
 from api.services.pdf_generator import generate_annex9_pdf
 
 router = APIRouter()
@@ -105,9 +105,9 @@ def _get_pdf_filename(order: Order) -> str:
 @router.post("/{order_id}/generate")
 async def generate_pdf(
     order_id: UUID,
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(get_staff_user),
 ):
-    """Generate PDF for an order and save it."""
+    """Generate PDF for an order and save it. Requires staff privileges."""
     order = await _get_order(order_id)
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import { useOrders, useDeleteOrder, useGeneratePdf } from '../../hooks'
+import { useOrders, useDeleteOrder, useGeneratePdf, useAuth } from '../../hooks'
 import { Button, Input, Select } from '../common'
 import { pdfApi } from '../../services/api'
 import type { OrderFilters, OrderStatus, ServiceType } from '../../types'
@@ -36,6 +36,7 @@ export function OrderList() {
   })
   const [pdfStates, setPdfStates] = useState<Record<string, PdfButtonState>>({})
   const { data, isLoading, error } = useOrders(filters)
+  const { canEdit } = useAuth()
   const deleteOrder = useDeleteOrder()
   const generatePdf = useGeneratePdf()
 
@@ -98,9 +99,11 @@ export function OrderList() {
             ]}
             onChange={(e) => handleStatusFilter(e.target.value)}
           />
-          <Link to="/orders/new">
-            <Button className="w-full">Nouveau bon de commande</Button>
-          </Link>
+          {canEdit && (
+            <Link to="/orders/new">
+              <Button className="w-full">Nouveau bon de commande</Button>
+            </Link>
+          )}
         </div>
       </div>
 
@@ -170,12 +173,14 @@ export function OrderList() {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                        <Link
-                          to={`/orders/${order.id}/edit`}
-                          className="text-primary-600 hover:text-primary-800"
-                        >
-                          Modifier
-                        </Link>
+                        {canEdit && (
+                          <Link
+                            to={`/orders/${order.id}/edit`}
+                            className="text-primary-600 hover:text-primary-800"
+                          >
+                            Modifier
+                          </Link>
+                        )}
                         {(() => {
                           const pdfState = pdfStates[order.id] || 'idle'
                           const hasPdf = order.pdf_url || pdfState === 'success'
@@ -188,7 +193,7 @@ export function OrderList() {
                             )
                           }
 
-                          if (pdfState === 'error') {
+                          if (pdfState === 'error' && canEdit) {
                             return (
                               <button
                                 onClick={() => handleGeneratePdf(order.id)}
@@ -210,21 +215,27 @@ export function OrderList() {
                             )
                           }
 
-                          return (
-                            <button
-                              onClick={() => handleGeneratePdf(order.id)}
-                              className="text-green-600 hover:text-green-800"
-                            >
-                              Générer PDF
-                            </button>
-                          )
+                          if (canEdit) {
+                            return (
+                              <button
+                                onClick={() => handleGeneratePdf(order.id)}
+                                className="text-green-600 hover:text-green-800"
+                              >
+                                Générer PDF
+                              </button>
+                            )
+                          }
+
+                          return null
                         })()}
-                        <button
-                          onClick={() => handleDelete(order.id)}
-                          className="text-red-600 hover:text-red-800"
-                        >
-                          Supprimer
-                        </button>
+                        {canEdit && (
+                          <button
+                            onClick={() => handleDelete(order.id)}
+                            className="text-red-600 hover:text-red-800"
+                          >
+                            Supprimer
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}

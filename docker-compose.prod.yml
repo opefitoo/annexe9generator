@@ -35,6 +35,10 @@ services:
       - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@example.com}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD:?ADMIN_PASSWORD is required}
       - RESET_ADMIN_PASSWORD=${RESET_ADMIN_PASSWORD:-false}
+      # Optional readonly user
+      - READONLY_USERNAME=${READONLY_USERNAME:-}
+      - READONLY_EMAIL=${READONLY_EMAIL:-}
+      - READONLY_PASSWORD=${READONLY_PASSWORD:-}
       # Email settings for password reset (optional - password reset won't work without these)
       - EMAIL_BACKEND=${EMAIL_BACKEND:-django.core.mail.backends.console.EmailBackend}
       - EMAIL_HOST=${EMAIL_HOST:-}

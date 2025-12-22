@@ -19,7 +19,7 @@ from api.schemas import (
     OrderStatus,
     ServiceType,
 )
-from api.routes.auth import get_current_active_user
+from api.routes.auth import get_current_active_user, get_staff_user
 
 router = APIRouter()
 
@@ -208,9 +208,9 @@ def _create_order_sync(order_data: dict, user: User) -> Order:
 @router.post("/", response_model=OrderResponse, status_code=status.HTTP_201_CREATED)
 async def create_order(
     order_data: OrderCreate,
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(get_staff_user),
 ):
-    """Create a new order."""
+    """Create a new order. Requires staff privileges."""
     try:
         order = await _create_order_sync(order_data.model_dump(), current_user)
     except ValueError as e:
@@ -273,9 +273,9 @@ def _update_order_sync(order_id: UUID, update_data: dict, user: User) -> Optiona
 async def update_order(
     order_id: UUID,
     order_data: OrderUpdate,
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(get_staff_user),
 ):
-    """Update an existing order."""
+    """Update an existing order. Requires staff privileges."""
     update_data = order_data.model_dump(exclude_unset=True)
     order = await _update_order_sync(order_id, update_data, current_user)
     if not order:
@@ -304,9 +304,9 @@ def _delete_order_sync(order_id: UUID, user: User) -> bool:
 @router.delete("/{order_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_order(
     order_id: UUID,
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(get_staff_user),
 ):
-    """Delete an order."""
+    """Delete an order. Requires staff privileges."""
     success = await _delete_order_sync(order_id, current_user)
     if not success:
         raise HTTPException(status_code=404, detail="Order not found")
@@ -336,9 +336,9 @@ def _archive_order_sync(order_id: UUID, user: User) -> Optional[Order]:
 @router.post("/{order_id}/archive", response_model=OrderResponse)
 async def archive_order(
     order_id: UUID,
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(get_staff_user),
 ):
-    """Archive an order."""
+    """Archive an order. Requires staff privileges."""
     order = await _archive_order_sync(order_id, current_user)
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
