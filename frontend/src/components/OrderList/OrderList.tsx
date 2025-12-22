@@ -27,11 +27,14 @@ const statusColors: Record<OrderStatus, string> = {
   archived: 'bg-yellow-100 text-yellow-800',
 }
 
+type PdfButtonState = 'idle' | 'loading' | 'success' | 'error'
+
 export function OrderList() {
   const [filters, setFilters] = useState<OrderFilters>({
     page: 1,
     page_size: 20,
   })
+  const [pdfStates, setPdfStates] = useState<Record<string, PdfButtonState>>({})
   const { data, isLoading, error } = useOrders(filters)
   const deleteOrder = useDeleteOrder()
   const generatePdf = useGeneratePdf()
@@ -55,7 +58,13 @@ export function OrderList() {
   }
 
   const handleGeneratePdf = async (id: string) => {
-    await generatePdf.mutateAsync(id)
+    setPdfStates((prev) => ({ ...prev, [id]: 'loading' }))
+    try {
+      await generatePdf.mutateAsync(id)
+      setPdfStates((prev) => ({ ...prev, [id]: 'success' }))
+    } catch {
+      setPdfStates((prev) => ({ ...prev, [id]: 'error' }))
+    }
   }
 
   const handleDownloadPdf = (id: string) => {
@@ -167,23 +176,49 @@ export function OrderList() {
                         >
                           Modifier
                         </Link>
-                        {order.status !== 'generated' && (
-                          <button
-                            onClick={() => handleGeneratePdf(order.id)}
-                            className="text-green-600 hover:text-green-800"
-                            disabled={generatePdf.isPending}
-                          >
-                            Générer PDF
-                          </button>
-                        )}
-                        {order.pdf_url && (
-                          <button
-                            onClick={() => handleDownloadPdf(order.id)}
-                            className="text-blue-600 hover:text-blue-800"
-                          >
-                            Télécharger
-                          </button>
-                        )}
+                        {(() => {
+                          const pdfState = pdfStates[order.id] || 'idle'
+                          const hasPdf = order.pdf_url || pdfState === 'success'
+
+                          if (pdfState === 'loading') {
+                            return (
+                              <span className="text-gray-500 cursor-wait">
+                                Génération...
+                              </span>
+                            )
+                          }
+
+                          if (pdfState === 'error') {
+                            return (
+                              <button
+                                onClick={() => handleGeneratePdf(order.id)}
+                                className="text-red-600 hover:text-red-800"
+                              >
+                                Erreur - Réessayer
+                              </button>
+                            )
+                          }
+
+                          if (hasPdf) {
+                            return (
+                              <button
+                                onClick={() => handleDownloadPdf(order.id)}
+                                className="text-blue-600 hover:text-blue-800"
+                              >
+                                Télécharger
+                              </button>
+                            )
+                          }
+
+                          return (
+                            <button
+                              onClick={() => handleGeneratePdf(order.id)}
+                              className="text-green-600 hover:text-green-800"
+                            >
+                              Générer PDF
+                            </button>
+                          )
+                        })()}
                         <button
                           onClick={() => handleDelete(order.id)}
                           className="text-red-600 hover:text-red-800"
