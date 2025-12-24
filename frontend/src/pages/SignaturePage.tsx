@@ -262,22 +262,16 @@ export function SignaturePage() {
             En signant, je confirme avoir pris connaissance des conditions du service et accepte la réservation.
           </p>
 
-          <div className="flex justify-center">
-            <SignatureCanvas
-              onSignatureChange={setSignatureData}
-              width={Math.min(320, window.innerWidth - 64)}
-              height={160}
-            />
-          </div>
+          <SignatureCanvas onSignatureChange={setSignatureData} />
         </div>
 
-        {/* Submit Button */}
-        <div className="pb-6">
+        {/* Submit Button - sticky on mobile */}
+        <div className="pb-6 sticky bottom-0 bg-gray-50 pt-4 -mx-4 px-4 sm:relative sm:bg-transparent sm:pt-0 sm:mx-0 sm:px-0">
           <Button
             onClick={handleSaveSignature}
             loading={submitSignature.isPending}
             disabled={!signatureData}
-            className="w-full py-4 text-lg"
+            className="w-full py-4 text-lg rounded-xl shadow-lg sm:shadow-none"
           >
             Confirmer et signer
           </Button>

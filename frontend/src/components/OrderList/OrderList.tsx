@@ -107,16 +107,99 @@ export function OrderList() {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="card overflow-hidden">
-        {isLoading ? (
-          <div className="text-center py-8">Chargement...</div>
-        ) : !data?.items.length ? (
-          <div className="text-center py-8 text-gray-500">
-            Aucun bon de commande trouvé
+      {/* Orders List */}
+      {isLoading ? (
+        <div className="card text-center py-8">Chargement...</div>
+      ) : !data?.items.length ? (
+        <div className="card text-center py-8 text-gray-500">
+          Aucun bon de commande trouvé
+        </div>
+      ) : (
+        <>
+          {/* Mobile Card View */}
+          <div className="md:hidden space-y-3">
+            {data.items.map((order) => {
+              const pdfState = pdfStates[order.id] || 'idle'
+              const hasPdf = order.pdf_url || pdfState === 'success'
+
+              return (
+                <div key={order.id} className="bg-white rounded-lg shadow-sm p-4">
+                  <div className="flex justify-between items-start mb-2">
+                    <Link
+                      to={`/orders/${order.id}`}
+                      className="text-primary-600 hover:text-primary-800 font-semibold"
+                    >
+                      {order.reference}
+                    </Link>
+                    <span
+                      className={`px-2 py-1 text-xs font-medium rounded-full ${
+                        statusColors[order.status]
+                      }`}
+                    >
+                      {statusLabels[order.status]}
+                    </span>
+                  </div>
+                  <p className="text-gray-900 font-medium">{order.client_name}</p>
+                  <div className="flex items-center text-sm text-gray-500 mt-1">
+                    <span>{serviceTypeLabels[order.service_type]}</span>
+                    <span className="mx-2">•</span>
+                    <span>
+                      {format(new Date(order.reservation_date), 'dd/MM/yyyy', {
+                        locale: fr,
+                      })}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-gray-100">
+                    {canEdit && (
+                      <Link
+                        to={`/orders/${order.id}/edit`}
+                        className="px-3 py-1.5 text-sm font-medium text-primary-600 bg-primary-50 rounded-lg active:bg-primary-100"
+                      >
+                        Modifier
+                      </Link>
+                    )}
+                    {pdfState === 'loading' ? (
+                      <span className="px-3 py-1.5 text-sm text-gray-500">
+                        Génération...
+                      </span>
+                    ) : pdfState === 'error' && canEdit ? (
+                      <button
+                        onClick={() => handleGeneratePdf(order.id)}
+                        className="px-3 py-1.5 text-sm font-medium text-red-600 bg-red-50 rounded-lg active:bg-red-100"
+                      >
+                        Réessayer
+                      </button>
+                    ) : hasPdf ? (
+                      <button
+                        onClick={() => handleDownloadPdf(order.id)}
+                        className="px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg active:bg-blue-100"
+                      >
+                        Télécharger
+                      </button>
+                    ) : canEdit ? (
+                      <button
+                        onClick={() => handleGeneratePdf(order.id)}
+                        className="px-3 py-1.5 text-sm font-medium text-green-600 bg-green-50 rounded-lg active:bg-green-100"
+                      >
+                        Générer PDF
+                      </button>
+                    ) : null}
+                    {canEdit && (
+                      <button
+                        onClick={() => handleDelete(order.id)}
+                        className="px-3 py-1.5 text-sm font-medium text-red-600 bg-red-50 rounded-lg active:bg-red-100"
+                      >
+                        Supprimer
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
           </div>
-        ) : (
-          <>
+
+          {/* Desktop Table View */}
+          <div className="hidden md:block card overflow-hidden">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
@@ -242,38 +325,38 @@ export function OrderList() {
                 </tbody>
               </table>
             </div>
+          </div>
 
-            {/* Pagination */}
-            {data.pages > 1 && (
-              <div className="px-6 py-4 border-t flex items-center justify-between">
-                <p className="text-sm text-gray-500">
-                  {data.total} résultat(s) - Page {data.page} sur {data.pages}
-                </p>
-                <div className="space-x-2">
-                  <Button
-                    variant="secondary"
-                    disabled={data.page <= 1}
-                    onClick={() =>
-                      setFilters((prev) => ({ ...prev, page: prev.page! - 1 }))
-                    }
-                  >
-                    Précédent
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    disabled={data.page >= data.pages}
-                    onClick={() =>
-                      setFilters((prev) => ({ ...prev, page: prev.page! + 1 }))
-                    }
-                  >
-                    Suivant
-                  </Button>
-                </div>
+          {/* Pagination */}
+          {data.pages > 1 && (
+            <div className="mt-4 px-4 py-3 bg-white rounded-lg shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
+              <p className="text-sm text-gray-500">
+                {data.total} résultat(s) - Page {data.page} sur {data.pages}
+              </p>
+              <div className="flex space-x-2">
+                <Button
+                  variant="secondary"
+                  disabled={data.page <= 1}
+                  onClick={() =>
+                    setFilters((prev) => ({ ...prev, page: prev.page! - 1 }))
+                  }
+                >
+                  Précédent
+                </Button>
+                <Button
+                  variant="secondary"
+                  disabled={data.page >= data.pages}
+                  onClick={() =>
+                    setFilters((prev) => ({ ...prev, page: prev.page! + 1 }))
+                  }
+                >
+                  Suivant
+                </Button>
               </div>
-            )}
-          </>
-        )}
-      </div>
+            </div>
+          )}
+        </>
+      )}
     </div>
   )
 }
